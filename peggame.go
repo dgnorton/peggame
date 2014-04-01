@@ -15,7 +15,7 @@
 package main
 
 import (
-    "flag"
+	"flag"
 	"fmt"
 	"math/rand"
 	"time"
@@ -23,8 +23,8 @@ import (
 
 // possible move
 type move struct {
-    // P2 is the peg in the middle that gets jumped by either
-    // P1 or P3, depending on which has a peg in it.
+	// P2 is the peg in the middle that gets jumped by either
+	// P1 or P3, depending on which has a peg in it.
 	P1, P2, P3 uint
 }
 
@@ -60,9 +60,9 @@ type game struct {
 
 // creates a new instance of a game ready to play
 func newGame() game {
-    // generate a board with pegs in ALL holes
+	// generate a board with pegs in ALL holes
 	g := game{maxUint}
-    // remove one random peg
+	// remove one random peg
 	n := uint(rand.Intn(15))
 	g = g.toggleBit(n)
 	return g
@@ -141,37 +141,37 @@ func play(g game, moves []uint, solvedCh chan []uint) {
 }
 
 func main() {
-    // parse command line
-    var printCnt int
-    flag.IntVar(&printCnt, "p", 1, "number of solutions to print")
-    flag.Parse()
+	// parse command line
+	var printCnt int
+	flag.IntVar(&printCnt, "p", 1, "number of solutions to print")
+	flag.Parse()
 
-    // seed random generator
+	// seed random generator
 	rand.Seed(time.Now().UTC().UnixNano())
 
-   // create a game board and start the solver in the background
+	// create a game board and start the solver in the background
 	g := newGame()
 	solutionsCh := make(chan []uint)
 	moves := []uint{g.Board}
 	go play(g, moves, solutionsCh)
 
-    // loop to read solutions as the solver finds them
+	// loop to read solutions as the solver finds them
 	for i := 0; ; i++ {
 		solution := <-solutionsCh
 
 		if solution == nil {
-            if printCnt < 0 {
-               printCnt = i
-            }
+			if printCnt < 0 {
+				printCnt = i
+			}
 			fmt.Printf("Printed %d of %d solutions.\n", printCnt, i+1)
 			return
 		}
 
-        if i < printCnt || printCnt < 0{
-		 for _, move := range solution {
-		    game{move}.Print()
-		    fmt.Println(" ")
-		 }
-        }
+		if i < printCnt || printCnt < 0 {
+			for _, move := range solution {
+				game{move}.Print()
+				fmt.Println(" ")
+			}
+		}
 	}
 }
